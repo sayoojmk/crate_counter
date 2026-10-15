@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tray Counter – Sachet Packing Line</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#14213D;--mut:#5B6B80;--line:#E3E8EF;--bg:#F3F6FA;--card:#fff;--nav:#0F1B2D;--blue:#1E6FEB;--green:#1FA463;--greenbar:#2DB36A;--amber:#C27A0A;--red:#C62F3B}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:'IBM Plex Sans',system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink);background:var(--bg);font-variant-numeric:tabular-nums}
+[hidden]{display:none!important}
+.ic{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.app{display:grid;grid-template-columns:176px 1fr;min-height:100vh}
+.nav{background:var(--nav);color:#B8C4D3;padding:18px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh}
+.brand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:600;padding:2px 8px 18px}
+.brand .ic{width:34px;height:34px;color:#FF7A1A}
+.nav a{display:flex;align-items:center;gap:12px;color:inherit;text-decoration:none;font-size:14px;padding:11px 12px;border-radius:8px;min-height:44px}
+.nav a.on{background:var(--blue);color:#fff}
+.nav a.off{opacity:.45;pointer-events:none}
+.nav .sp{flex:1}
+.nav small{font-size:11px;opacity:.7;padding:6px 10px}
+.main{padding:18px 22px 28px;display:flex;flex-direction:column;gap:16px;min-width:0}
+.top{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+h1{margin:0;font-size:28px;font-weight:600;line-height:1.1}
+.sub{color:var(--mut);font-size:14px}
+.topr{display:flex;flex-wrap:wrap;align-items:center;gap:16px}
+.pill{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;padding:8px 16px;border-radius:99px;background:#DDF3EA;color:#0B6B4F}
+.pill.warn{background:#FFF0D2;color:#8A5A12}.pill.bad{background:#FFE1E3;color:#9B1C26}
+.dot{width:10px;height:10px;border-radius:50%;background:currentColor;display:inline-block}
+.clock{text-align:right;border-left:1px solid var(--line);padding-left:16px}
+.clock .d{font-size:13px;color:var(--mut)}.clock .t{font-size:24px;font-weight:600}
+.badge{background:#FFF0D2;color:#8A5A12;font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+.tile{border-radius:14px;padding:18px 20px;display:flex;gap:16px;align-items:center;border:1px solid rgba(20,33,61,.06)}
+.tile .ic{width:52px;height:52px}
+.tile .lb{font-size:15px;font-weight:500}
+.tile .v{font-size:44px;font-weight:700;line-height:1.1;letter-spacing:-.5px}
+.tile .v small{font-size:18px;font-weight:500;margin-left:4px}
+.tile .s{font-size:14px;color:var(--mut)}
+.t1{background:#E6F0FF}.t1 .ic{color:var(--ink)}
+.t2{background:#E2F6EA}.t2 .ic{color:#12703F}
+.t3{background:#FFF4DA}.t3 .ic{color:#B7791F}
+.t4{background:#ECE8FF}.t4 .ic{color:#4B3FA8}
+.row2,.row3,.row4{display:grid;gap:16px}
+.row2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.row3{grid-template-columns:minmax(0,2fr) minmax(280px,1fr)}
+.row4{grid-template-columns:repeat(auto-fit,minmax(300px,1fr))}
+@media(max-width:1000px){.row3{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;min-width:0}
+.card h2{margin:0 0 12px;font-size:17px;font-weight:600}
+.stat{display:flex;gap:16px;align-items:center}
+.stat .ic{width:46px;height:46px}
+.stat .big{font-size:32px;font-weight:700;line-height:1.1}
+.run{background:#E2F6EA}.run .ic,.run .big{color:#12703F}
+.idle{background:#FFF4DA}.idle .ic,.idle .big{color:#B7791F}
+.wait{background:#EEF1F5}.wait .ic,.wait .big{color:#5B6B80}
+.track{position:relative;height:14px;border-radius:7px;background:#DDE3EA;margin:12px 0 6px;overflow:hidden}
+.track i{position:absolute;top:0;bottom:0;display:block}
+.ticks{display:flex;justify-content:space-between;font-size:12px;color:var(--mut)}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tabs button{font:inherit;font-size:14px;padding:8px 14px;min-height:40px;border:1px solid var(--line);background:#fff;border-radius:8px;color:var(--ink);cursor:pointer}
+.tabs button.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.chead{display:flex;flex-wrap:wrap;gap:10px;justify-content:space-between;align-items:center;margin-bottom:6px}
+.chead h2{margin:0}
+#chart svg{width:100%;height:auto;display:block}
+.li{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line);font-size:15px}
+.li:first-of-type{border-top:0}
+.li .ic{width:22px;height:22px;color:var(--mut)}
+.li .k{flex:1}.li b{font-weight:600;text-align:right}
+.li .m{display:block;font-size:12px;color:var(--mut);font-weight:400}
+.ok{color:#0B6B4F}.warnc{color:var(--amber)}.badc{color:var(--red)}
+.bar{height:12px;border-radius:6px;background:#DDE3EA;overflow:hidden;margin:6px 0 4px}
+.bar i{display:block;height:100%;background:var(--blue);border-radius:6px}
+.big2{font-size:34px;font-weight:700;line-height:1.1}
+.empty{color:var(--mut);font-size:14px;padding:6px 0}
+.hl{display:flex;align-items:center;gap:6px}
+.hl .dot{width:9px;height:9px}
+.err{background:#FFE1E3;color:#9B1C26;border-radius:10px;padding:10px 14px;font-size:14px}
+.loginwrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:var(--nav)}
+.login{background:#fff;border-radius:16px;padding:28px;width:min(380px,100%);display:flex;flex-direction:column;gap:12px}
+.login h1{font-size:24px}
+.login label{font-size:13px;color:var(--mut)}
+.login input{font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:8px;width:100%;margin-top:4px}
+.login button{font:inherit;font-weight:600;font-size:16px;padding:12px;min-height:46px;border:0;border-radius:8px;background:var(--blue);color:#fff;cursor:pointer}
+@media(max-width:900px){.app{grid-template-columns:1fr}.nav{display:none}.tile .v{font-size:36px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-tray" viewBox="0 0 24 24"><path d="M3 10h18l-1.6 9.5a1 1 0 0 1-1 .8H5.6a1 1 0 0 1-1-.8L3 10z"/><path d="M5.5 10V8a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v2"/><path d="M8.5 13v4M12 13v4M15.5 13v4"/></symbol>
+<symbol id="i-sachet" viewBox="0 0 24 24"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M6 6.5h12M6 17.5h12"/><path d="M12 9.5c1.6 1.9 2.4 3 2.4 4.1a2.4 2.4 0 0 1-4.8 0c0-1.1.8-2.2 2.4-4.1z"/></symbol>
+<symbol id="i-gauge" viewBox="0 0 24 24"><path d="M4.5 18a8.5 8.5 0 1 1 15 0"/><path d="M12 14.5l4-5"/><circle cx="12" cy="14.5" r="1"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><path d="M10 8l6 4-6 4z" fill="#fff" stroke="none"/></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><path d="M9.5 8v8M14.5 8v8" stroke="#fff" stroke-width="2.4"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v8.5a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="i-bars" viewBox="0 0 24 24"><path d="M5 20V11M12 20V5M19 20v-7"/></symbol>
+<symbol id="i-hist" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v4.5h4.5M12 8v4l3 2"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"/></symbol>
+<symbol id="i-cam" viewBox="0 0 24 24"><rect x="3" y="7" width="13" height="11" rx="2"/><path d="M16 11l5-3v9l-5-3z"/></symbol>
+<symbol id="i-cpu" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1.5"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2.5v3M15 2.5v3M9 18.5v3M15 18.5v3M2.5 9h3M2.5 15h3M18.5 9h3M18.5 15h3"/></symbol>
+<symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/></symbol>
+<symbol id="i-wifi" viewBox="0 0 24 24"><path d="M3 9.5a14 14 0 0 1 18 0M6 13a9.5 9.5 0 0 1 12 0M9 16.5a5 5 0 0 1 6 0"/><circle cx="12" cy="19.5" r=".8"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M3.5 8l8.5-4.5L20.5 8v8.5L12 21l-8.5-4.5z"/><path d="M3.5 8L12 12.5 20.5 8M12 12.5V21"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M9 4H5.5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1H9M15 8l4 4-4 4M19 12H9"/></symbol>
+</svg>
+
+<div id="login" class="loginwrap" hidden>
+  <form class="login" id="loginForm">
+    <div class="brand" style="color:var(--ink);padding:0"><svg class="ic" style="color:#FF7A1A"><use href="#i-tray"/></svg><h1>Tray Counter</h1></div>
+    <div class="sub">Sign in with your plant account</div>
+    <div><label for="em">Email</label><input id="em" type="email" autocomplete="username" required></div>
+    <div><label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required></div>
+    <div id="loginErr" class="err" hidden></div>
+    <button type="submit">Sign in</button>
+  </form>
+</div>
+
+<div id="app" class="app" hidden>
+<nav class="nav" aria-label="Main">
+  <div class="brand"><svg class="ic"><use href="#i-tray"/></svg><span>Tray Counter</span></div>
+  <a class="on" href="#"><svg class="ic"><use href="#i-home"/></svg>Overview</a>
+  <a class="off" href="#" aria-disabled="true"><svg class="ic"><use href="#i-bars"/></svg>Production</a>
+  <a class="off" href="#" aria-disabled="true"><svg class="ic"><use href="#i-hist"/></svg>History</a>
+  <a class="off" href="#" aria-disabled="true"><svg class="ic"><use href="#i-bell"/></svg>Events</a>
+  <a class="off" href="#" aria-disabled="true"><svg class="ic"><use href="#i-gear"/></svg>Settings</a>
+  <div class="sp"></div>
+  <a href="#" id="signout"><svg class="ic"><use href="#i-out"/></svg>Sign out</a>
+  <small>Tray Counter · Sachet Packing Line</small>
+</nav>
+
+<main class="main">
+  <header class="top">
+    <div>
+      <h1>Tray Counter</h1>
+      <div class="sub">Sachet Packing Line · <span id="spt">24</span> Sachets per Tray <span id="demoBadge" class="badge" hidden>DEMO DATA</span></div>
+    </div>
+    <div class="topr">
+      <span id="pill" class="pill"><i class="dot"></i><span id="pillTxt">Connecting…</span></span>
+      <div class="clock"><div class="d" id="date"></div><div class="t" id="time"></div></div>
+    </div>
+  </header>
+  <div id="errBox" class="err" hidden></div>
+
+  <section class="kpis">
+    <div class="tile t1"><svg class="ic"><use href="#i-tray"/></svg><div><div class="lb">Total Trays Today</div><div class="v" id="kTrays">0</div><div class="s" id="kVs">&nbsp;</div></div></div>
+    <div class="tile t2"><svg class="ic"><use href="#i-sachet"/></svg><div><div class="lb">Total Sachets Today</div><div class="v" id="kSach">0</div><div class="s"><span id="kSpt">24</span> sachets / tray</div></div></div>
+    <div class="tile t3"><svg class="ic"><use href="#i-gauge"/></svg><div><div class="lb">Current Rate</div><div class="v"><span id="kRate">0</span><small>trays / hour</small></div><div class="s"><span id="kRateS">0</span> sachets / hour · last <span id="kRw">15</span> min</div></div></div>
+    <div class="tile t4"><svg class="ic"><use href="#i-clock"/></svg><div><div class="lb">Last Tray Detected</div><div class="v" id="kLast">–</div><div class="s" id="kAgo">no tray yet today</div></div></div>
+  </section>
+
+  <section class="row2">
+    <div class="card stat" id="stCard"><svg class="ic" id="stIc"><use href="#i-pause"/></svg><div><div class="sub" style="font-weight:600;color:var(--ink)">Production Status</div><div class="big" id="stTxt">WAITING</div><div class="sub" id="stSub">&nbsp;</div></div></div>
+    <div class="card stat"><svg class="ic" style="color:var(--ink)"><use href="#i-clock"/></svg><div><div class="sub" style="font-weight:600;color:var(--ink)">Today's Runtime</div><div class="big" id="rtTxt">0m</div><div class="sub">First tray <b id="rtFirst">–</b> &nbsp;|&nbsp; Last tray <b id="rtLast">–</b></div></div></div>
+    <div class="card">
+      <div class="stat"><svg class="ic" style="color:var(--ink);width:36px;height:36px"><use href="#i-cal"/></svg><div><div class="sub" style="font-weight:600;color:var(--ink)">Scheduled Production Window</div><div class="big" style="font-size:24px" id="wnTxt">07:00 – 21:00</div></div></div>
+      <div class="track" id="wnTrack"><i id="wnWin" style="background:#CFE9DB"></i><i id="wnDone" style="background:var(--greenbar)"></i></div>
+      <div class="ticks"><span>00:00</span><span id="wnS">07:00</span><span id="wnE">21:00</span><span>24:00</span></div>
+    </div>
+  </section>
+
+  <section class="row3">
+    <div class="card">
+      <div class="chead"><h2>Production Trend – Today</h2>
+        <div class="tabs"><button id="tbH" class="on" type="button">Trays / Hour</button><button id="tbC" type="button">Cumulative vs target</button></div></div>
+      <div id="chart"></div>
+    </div>
+    <div class="card">
+      <h2>Pace vs Target</h2>
+      <div class="sub">Projected at <span id="pjEnd">21:00</span> at today's average rate</div>
+      <div class="big2" id="pjVal">0</div>
+      <div class="sub" id="pjSub">&nbsp;</div>
+      <div class="bar"><i id="pjBar" style="width:0%"></i></div>
+      <div class="ticks"><span id="pjDone">0 of 0</span><span id="pjPct">0%</span></div>
+      <div style="margin-top:10px">
+        <div class="li"><svg class="ic"><use href="#i-gauge"/></svg><span class="k">Average rate</span><b id="sAvg">–</b></div>
+        <div class="li"><svg class="ic"><use href="#i-clock"/></svg><span class="k">Production duration<span class="m" id="sDurM"></span></span><b id="sDur">–</b></div>
+        <div class="li"><svg class="ic"><use href="#i-pause"/></svg><span class="k">Detected idle time<span class="m" id="sIdleM"></span></span><b id="sIdle">0m</b></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row4">
+    <div class="card"><h2>Idle Periods Today</h2><div id="idleList"></div></div>
+    <div class="card"><h2>System Health</h2>
+      <div class="li"><svg class="ic"><use href="#i-cam"/></svg><span class="k">Camera</span><b class="hl" id="hCam"><i class="dot"></i><span>–</span></b></div>
+      <div class="li"><svg class="ic"><use href="#i-cpu"/></svg><span class="k">Processing</span><b class="hl" id="hFps"><i class="dot"></i><span>–</span></b></div>
+      <div class="li"><svg class="ic"><use href="#i-db"/></svg><span class="k">Database (Supabase)</span><b class="hl" id="hDb"><i class="dot"></i><span>–</span></b></div>
+      <div class="li"><svg class="ic"><use href="#i-wifi"/></svg><span class="k">Counter heartbeat</span><b class="hl" id="hBeat"><i class="dot"></i><span>–</span></b></div>
+      <div class="li"><svg class="ic"><use href="#i-box"/></svg><span class="k">Waiting to upload</span><b class="hl" id="hQ"><i class="dot"></i><span>–</span></b></div>
+    </div>
+  </section>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+// ============ CONFIG: fill in the first two, then open this file or host it ============
+const CONFIG = {
+  SUPABASE_URL: 'https://xjekepsytxythsqutafa.supabase.co',            // e.g. https://abcdxyz.supabase.co
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhqZWtlcHN5dHh5dGhzcXV0YWZhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxOTU1MzQsImV4cCI6MjEwMjc3MTUzNH0.D3X9qzNBR1TdQRDJXuFxa7AK88S0UVIp7x-8oZ7O0vg',       // the anon / publishable key. NEVER the service_role key.
+  LINE_ID: 'TRAY',
+  SACHETS_PER_TRAY: 24,
+  DAILY_TARGET: 6000,          // trays per day; change to your real target
+  WINDOW_START: 7, WINDOW_END: 21,   // scheduled production window (hours, India time)
+  IDLE_MIN: 3,                 // no tray for more than this many minutes = idle
+  RATE_WINDOW_MIN: 15,         // "current rate" looks at this many recent minutes
+  ONLINE_SEC: 150              // counter counts as online if its heartbeat is newer than this
+};
+// =========================================================================================
+const DEMO = new URLSearchParams(location.search).has('demo');
+const IST = 19800000, HOUR = 3600000, DAY = 86400000, MIN = 60000;
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, '0');
+const nf = n => Math.round(n).toLocaleString('en-US');
+const ist = ms => new Date(ms + IST);
+const hm = ms => { const d = ist(ms); return pad(d.getUTCHours()) + ':' + pad(d.getUTCMinutes()); };
+const hms = ms => hm(ms) + ':' + pad(ist(ms).getUTCSeconds());
+const dayStart = ms => Math.floor((ms + IST) / DAY) * DAY - IST;
+const DN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const dateStr = ms => { const d = ist(ms); return DN[d.getUTCDay()] + ', ' + pad(d.getUTCDate()) + ' ' + MN[d.getUTCMonth()] + ' ' + d.getUTCFullYear(); };
+function dur(ms) {
+  const s = Math.floor(Math.max(0, ms) / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60);
+  if (h) return h + 'h ' + m + 'm';
+  if (m) return m + 'm ' + pad(s % 60) + 's';
+  return s + 's';
+}
+const agoTxt = ms => { const s = Math.max(0, Math.floor(ms / 1000)); return s < 60 ? s + ' seconds ago' : dur(ms) + ' ago'; };
+
+let sb = null, rows = new Map(), status = null, chartMode = 'hour', rtState = DEMO ? 'DEMO' : 'CONNECTING', curDay = dayStart(Date.now()), lastSig = '';
+
+// ---------- data ----------
+function put(r) {
+  const t = Date.parse(r.minute_ts);
+  if (t < curDay) return;
+  rows.set(t, { t, n: Number(r.trays), last: Date.parse(r.last_tray_ts) });
+}
+function compute(now) {
+  const arr = [...rows.values()].sort((a, b) => a.t - b.t);
+  const c = { total: 0, hours: new Array(24).fill(0), idles: [], idleMs: 0, first: null, last: null };
+  let prev = null;
+  for (const r of arr) {
+    c.total += r.n;
+    c.hours[Math.floor(((r.t + IST) % DAY) / HOUR)] += r.n;
+    if (c.first === null) c.first = r.t;
+    if (prev) { const gap = r.t - prev.last; if (gap > CONFIG.IDLE_MIN * MIN) { c.idles.push({ from: prev.last, to: r.t }); c.idleMs += gap; } }
+    prev = r; c.last = Math.max(c.last || 0, r.last);
+  }
+  const w0 = Math.floor((now - CONFIG.RATE_WINDOW_MIN * MIN) / MIN) * MIN;
+  let n15 = 0; for (const r of arr) if (r.t >= w0) n15 += r.n;
+  c.rate = n15 / ((now - w0) / HOUR);
+  const ws = curDay + CONFIG.WINDOW_START * HOUR, we = curDay + CONFIG.WINDOW_END * HOUR;
+  c.ws = ws; c.we = we;
+  const inWin = now >= ws && now < we;
+  c.sinceLast = c.last ? now - c.last : 0;
+  if (!c.last) c.state = 'WAITING';
+  else if (c.sinceLast <= CONFIG.IDLE_MIN * MIN) c.state = 'RUNNING';
+  else c.state = inWin ? 'IDLE' : 'STOPPED';
+  c.ongoing = c.state === 'IDLE' ? c.sinceLast : 0;
+  c.idleTotal = c.idleMs + c.ongoing;
+  c.idleCount = c.idles.length + (c.ongoing ? 1 : 0);
+  c.duration = c.last ? c.last - c.first : 0;
+  c.runtime = Math.max(0, c.duration - c.idleMs);
+  c.avg = c.runtime > 3 * MIN ? c.total / (c.runtime / HOUR) : 0;
+  const remH = now < we ? Math.max(0, (we - Math.max(now, ws)) / HOUR) : 0;
+  c.projected = c.total + c.avg * remH;
+  return c;
+}
+
+// ---------- rendering ----------
+function setH(id, cls, text) { const e = $(id); e.className = 'hl ' + cls; e.lastElementChild.textContent = text; }
+function render(force) {
+  const now = Date.now();
+  if (dayStart(now) !== curDay) { curDay = dayStart(now); rows.clear(); lastSig = ''; if (!DEMO && sb) loadAll(); }
+  const c = compute(now), spt = CONFIG.SACHETS_PER_TRAY;
+  $('date').textContent = dateStr(now); $('time').textContent = hms(now);
+  $('kTrays').textContent = nf(c.total); $('kSach').textContent = nf(c.total * spt);
+  $('kRate').textContent = nf(c.rate); $('kRateS').textContent = nf(c.rate * spt);
+  $('kLast').textContent = c.last ? hms(c.last) : '–';
+  $('kAgo').textContent = c.last ? agoTxt(now - c.last) : 'no tray yet today';
+  // status card
+  const card = $('stCard'), cls = { RUNNING: 'run', IDLE: 'idle', WAITING: 'wait', STOPPED: 'wait' }[c.state];
+  card.className = 'card stat ' + cls;
+  $('stIc').firstElementChild.setAttribute('href', c.state === 'RUNNING' ? '#i-play' : '#i-pause');
+  $('stTxt').textContent = c.state;
+  $('stSub').textContent = { RUNNING: 'Normal production', IDLE: 'No tray for ' + dur(c.sinceLast) + ' (since ' + hm(c.last) + ')',
+    WAITING: 'No tray counted yet today', STOPPED: 'Outside the scheduled window' }[c.state];
+  $('rtTxt').textContent = dur(c.runtime); $('rtFirst').textContent = c.first ? hm(c.first) : '–'; $('rtLast').textContent = c.last ? hm(c.last) : '–';
+  // window bar
+  const pc = ms => Math.min(100, Math.max(0, (ms - curDay) / DAY * 100));
+  $('wnTxt').textContent = pad(CONFIG.WINDOW_START) + ':00 – ' + pad(CONFIG.WINDOW_END) + ':00';
+  $('wnS').textContent = pad(CONFIG.WINDOW_START) + ':00'; $('wnE').textContent = pad(CONFIG.WINDOW_END) + ':00';
+  $('wnWin').style.left = pc(c.ws) + '%'; $('wnWin').style.width = (pc(c.we) - pc(c.ws)) + '%';
+  const dn = Math.min(now, c.we);
+  $('wnDone').style.left = pc(c.ws) + '%'; $('wnDone').style.width = Math.max(0, pc(dn) - pc(c.ws)) + '%';
+  // pace
+  const T = CONFIG.DAILY_TARGET;
+  $('pjEnd').textContent = pad(CONFIG.WINDOW_END) + ':00';
+  $('pjVal').textContent = nf(c.projected) + ' trays';
+  const diff = c.projected - T;
+  $('pjSub').textContent = c.avg ? (diff >= 0 ? nf(diff) + ' above' : nf(-diff) + ' below') + ' the ' + nf(T) + ' target' : 'Needs a little more data';
+  $('pjSub').className = 'sub ' + (c.avg ? (diff >= 0 ? 'ok' : 'warnc') : '');
+  $('pjBar').style.width = Math.min(100, c.total / T * 100) + '%';
+  $('pjDone').textContent = nf(c.total) + ' of ' + nf(T); $('pjPct').textContent = (c.total / T * 100).toFixed(1) + '%';
+  $('sAvg').textContent = c.avg ? nf(c.avg) + ' trays/hr' : '–';
+  $('sDur').textContent = c.last ? dur(c.duration) : '–'; $('sDurM').textContent = c.last ? hm(c.first) + ' – ' + hm(c.last) : '';
+  $('sIdle').textContent = dur(c.idleTotal); $('sIdleM').textContent = c.idleCount + (c.idleCount === 1 ? ' period' : ' periods');
+  // idle list
+  const L = $('idleList'), items = c.idles.map(i => [hm(i.from) + ' – ' + hm(i.to), dur(i.to - i.from), false]);
+  if (c.ongoing) items.push([hm(c.last) + ' – now', dur(c.ongoing), true]);
+  const sig = items.map(i => i.join()).join('|');
+  if (L.dataset.sig !== sig) {
+    L.dataset.sig = sig; L.textContent = '';
+    if (!items.length) { const e = document.createElement('div'); e.className = 'empty'; e.textContent = 'No idle periods longer than ' + CONFIG.IDLE_MIN + ' min today.'; L.appendChild(e); }
+    items.slice().reverse().forEach(([a, b, live]) => {
+      const d = document.createElement('div'); d.className = 'li';
+      d.innerHTML = '<svg class="ic"><use href="#i-pause"/></svg><span class="k"></span><b></b>';
+      d.children[1].textContent = a + (live ? '  (ongoing)' : ''); d.children[2].textContent = b; L.appendChild(d);
+    });
+  }
+  // health
+  const st = status, hb = st ? Date.parse(st.last_heartbeat) : 0, beatAge = hb ? now - hb : Infinity;
+  const online = beatAge < CONFIG.ONLINE_SEC * 1000;
+  const pill = $('pill');
+  if (!st) { pill.className = 'pill warn'; $('pillTxt').textContent = 'Waiting for counter'; }
+  else if (!online) { pill.className = 'pill bad'; $('pillTxt').textContent = 'Counter offline'; }
+  else if (!st.camera_ok) { pill.className = 'pill warn'; $('pillTxt').textContent = 'Camera problem'; }
+  else { pill.className = 'pill'; $('pillTxt').textContent = 'System Online'; }
+  setH('hCam', st && online ? (st.camera_ok ? 'ok' : 'badc') : 'warnc', st && online ? (st.camera_ok ? 'Online' : 'No picture') : 'Unknown');
+  setH('hFps', st && online ? (st.fps > 15 ? 'ok' : 'warnc') : 'warnc', st && online ? 'Normal (' + Number(st.fps).toFixed(1) + ' FPS)' : 'Unknown');
+  const rt = rtState === 'SUBSCRIBED' || rtState === 'DEMO';
+  setH('hDb', rt ? 'ok' : 'warnc', rtState === 'DEMO' ? 'Demo' : rt ? 'Connected (live)' : 'Reconnecting…');
+  setH('hBeat', online ? 'ok' : 'badc', hb ? agoTxt(beatAge) : 'none yet');
+  setH('hQ', st && st.unsynced > 0 ? 'warnc' : 'ok', st ? (st.unsynced > 0 ? st.unsynced + ' minute(s) queued' : 'Nothing waiting') : '–');
+  drawChart(c, now, force);
+}
+
+function niceStep(v) { const raw = Math.max(v, 1) / 4, p = Math.pow(10, Math.floor(Math.log10(raw))), m = raw / p; return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 2.5 ? 2.5 : m <= 5 ? 5 : 10) * p; }
+function drawChart(c, now, force) {
+  const nowH = Math.floor(((now + IST) % DAY) / HOUR);
+  let first = CONFIG.WINDOW_START, end = CONFIG.WINDOW_END;
+  c.hours.forEach((v, h) => { if (v > 0) { first = Math.min(first, h); end = Math.max(end, h + 1); } });
+  const nh = end - first, pace = CONFIG.DAILY_TARGET / (CONFIG.WINDOW_END - CONFIG.WINDOW_START);
+  const sig = chartMode + '|' + first + '|' + end + '|' + c.hours.join() + '|' + (chartMode === 'cum' ? Math.floor(now / 30000) : nowH);
+  if (!force && sig === lastSig) return; lastSig = sig;
+  const W = 800, H = 290, L = 52, R = 12, Tp = 14, B = 30, pw = W - L - R, ph = H - Tp - B;
+  const vals = c.hours.slice(first, end);
+  const vmax = chartMode === 'hour' ? Math.max(...vals, pace) * 1.08 : Math.max(c.total, CONFIG.DAILY_TARGET) * 1.05;
+  const step = niceStep(vmax), ymax = step * 4, sx = pw / nh, Y = v => Tp + ph - v / ymax * ph;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Production trend">`;
+  for (let i = 0; i <= 4; i++) { const y = Y(i * step); s += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="#E3E8EF"/><text x="${L - 8}" y="${y + 4}" text-anchor="end" font-size="12" fill="#5B6B80">${nf(i * step)}</text>`; }
+  for (let i = 0; i < nh; i++) { s += `<text x="${L + i * sx + sx / 2}" y="${H - 8}" text-anchor="middle" font-size="12" fill="#5B6B80">${pad(first + i)}:00</text>`; }
+  if (chartMode === 'hour') {
+    vals.forEach((v, i) => { const bw = sx * .7, x = L + i * sx + (sx - bw) / 2, y = Y(v), cur = first + i === nowH;
+      s += `<rect x="${x}" y="${y}" width="${bw}" height="${Tp + ph - y}" rx="3" fill="#2DB36A" opacity="${cur ? .6 : 1}"><title>${pad(first + i)}:00 – ${v} trays${cur ? ' (so far)' : ''}</title></rect>`; });
+    const y = Y(pace); s += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="#C27A0A" stroke-width="2" stroke-dasharray="6 5"/><text x="${W - R}" y="${y - 6}" text-anchor="end" font-size="12" fill="#8A5A12">Target pace ${nf(pace)}/hr</text>`;
+  } else {
+    let cum = 0, pts = [[0, 0]];
+    for (let i = 0; i < nh; i++) { const h = first + i; if (h > nowH) break; cum += c.hours[h]; pts.push([h === nowH ? i + ((now + IST) % HOUR) / HOUR : i + 1, cum]); }
+    const P = pts.map(p => `${L + p[0] * sx},${Y(p[1])}`);
+    s += `<path d="M${L},${Y(0)} L${P.join(' L')} L${L + pts[pts.length - 1][0] * sx},${Y(0)} Z" fill="#2DB36A" opacity=".18"/><polyline points="${P.join(' ')}" fill="none" stroke="#1FA463" stroke-width="3"/>`;
+    const x0 = L + (CONFIG.WINDOW_START - first) * sx, x1 = L + (CONFIG.WINDOW_END - first) * sx;
+    s += `<line x1="${x0}" y1="${Y(0)}" x2="${x1}" y2="${Y(CONFIG.DAILY_TARGET)}" stroke="#C27A0A" stroke-width="2" stroke-dasharray="6 5"/><text x="${x1}" y="${Y(CONFIG.DAILY_TARGET) - 8}" text-anchor="end" font-size="12" fill="#8A5A12">Target ${nf(CONFIG.DAILY_TARGET)}</text>`;
+  }
+  $('chart').innerHTML = s + '</svg>';
+}
+$('tbH').onclick = () => { chartMode = 'hour'; $('tbH').className = 'on'; $('tbC').className = ''; render(true); };
+$('tbC').onclick = () => { chartMode = 'cum'; $('tbC').className = 'on'; $('tbH').className = ''; render(true); };
+
+let pending = false;
+function scheduleRender() { if (pending) return; pending = true; setTimeout(() => { pending = false; render(); }, 120); }
+function showErr(m) { const e = $('errBox'); e.hidden = !m; e.textContent = m || ''; }
+
+// ---------- live data (Realtime only: one load, then change events) ----------
+async function loadAll() {
+  const iso = new Date(curDay).toISOString(); let all = [], off = 0;
+  for (;;) {
+    const { data, error } = await sb.from('tray_minutes').select('minute_ts,trays,last_tray_ts').gte('minute_ts', iso).order('minute_ts').range(off, off + 999);
+    if (error) { showErr('Could not load today: ' + error.message); return; }
+    all.push(...data); if (data.length < 1000) break; off += 1000;
+  }
+  showErr(''); rows.clear(); all.forEach(put);
+  const s = await sb.from('tray_status').select('*').eq('line_id', CONFIG.LINE_ID).maybeSingle();
+  if (s.data) status = s.data;
+  render(true);
+}
+function startLive() {
+  $('login').hidden = true; $('app').hidden = false;
+  sb.channel('tray-live')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tray_minutes' }, p => {
+      if (p.eventType === 'DELETE') { rows.delete(Date.parse(p.old.minute_ts)); } else put(p.new); scheduleRender(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'tray_status' }, p => {
+      if (p.new && p.new.line_id === CONFIG.LINE_ID) { status = p.new; scheduleRender(); } })
+    .subscribe(s => { rtState = s; if (s === 'SUBSCRIBED') loadAll(); else render(); });
+}
+async function boot() {
+  $('spt').textContent = $('kSpt').textContent = CONFIG.SACHETS_PER_TRAY; $('kRw').textContent = CONFIG.RATE_WINDOW_MIN;
+  setInterval(() => render(), 1000);
+  if (DEMO) { $('login').hidden = true; $('app').hidden = false; $('demoBadge').hidden = false; startDemo(); render(true); return; }
+  $('login').hidden = false;
+  if (!CONFIG.SUPABASE_URL || !CONFIG.SUPABASE_ANON_KEY || !window.supabase) {
+    const e = $('loginErr'); e.hidden = false; e.textContent = 'Open this file in a text editor and fill in SUPABASE_URL and SUPABASE_ANON_KEY at the top of the script. (Add ?demo to the address to preview with fake data.)'; return; }
+  sb = supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_ANON_KEY);
+  const { data } = await sb.auth.getSession();
+  if (data.session) startLive();
+}
+$('loginForm').onsubmit = async ev => {
+  ev.preventDefault(); const e = $('loginErr'); e.hidden = true;
+  if (!sb) return;
+  const { error } = await sb.auth.signInWithPassword({ email: $('em').value.trim(), password: $('pw').value });
+  if (error) { e.hidden = false; e.textContent = error.message; return; }
+  startLive();
+};
+$('signout').onclick = async ev => { ev.preventDefault(); if (sb) await sb.auth.signOut(); location.reload(); };
+
+// ---------- demo mode (?demo): fake data, no login, nothing contacted ----------
+function startDemo() {
+  const now = Date.now(), t0 = Math.max(curDay, Math.floor((now - 8.3 * HOUR) / MIN) * MIN);
+  const gaps = [[1.7, 1.85], [5.5, 5.87], [7.97, 8.1]];
+  for (let t = t0; t <= now; t += MIN) {
+    const h = (t - t0) / HOUR; if (gaps.some(g => h >= g[0] && h < g[1])) continue;
+    const n = 6 + Math.floor(Math.random() * 5), last = Math.min(now, t + 20000 + Math.floor(Math.random() * 39000));
+    rows.set(t, { t, n, last });
+  }
+  status = { last_heartbeat: new Date().toISOString(), fps: 24.8, camera_ok: true, unsynced: 0 };
+  setInterval(() => { const t = Math.floor(Date.now() / MIN) * MIN, r = rows.get(t); rows.set(t, { t, n: (r ? r.n : 0) + 1, last: Date.now() }); scheduleRender(); }, 7000);
+  setInterval(() => { status = { ...status, last_heartbeat: new Date().toISOString() }; }, 20000);
+}
+boot();
+</script>
+</body>
+</html>
